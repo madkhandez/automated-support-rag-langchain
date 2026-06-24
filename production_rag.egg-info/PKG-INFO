@@ -1,0 +1,53 @@
+Metadata-Version: 2.4
+Name: production-rag
+Version: 1.0.0
+Summary: Production RAG with LangChain & Vector Databases - Complete Course Project
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: langchain>=1.0.0
+Requires-Dist: langchain-openai>=0.3.0
+Requires-Dist: langchain-chroma>=0.2.0
+Requires-Dist: langchain-community>=0.3.0
+Requires-Dist: langchain-core>=0.3.0
+Requires-Dist: langgraph>=0.2.0
+Requires-Dist: langsmith>=0.2.0
+Requires-Dist: chromadb>=0.5.0
+Requires-Dist: openai>=1.50.0
+Requires-Dist: fastapi>=0.115.0
+Requires-Dist: uvicorn>=0.30.0
+Requires-Dist: streamlit>=1.38.0
+Requires-Dist: supabase>=2.7.0
+Requires-Dist: psycopg2-binary>=2.9.9
+Requires-Dist: pgvector>=0.3.0
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: pydantic>=2.8.0
+Requires-Dist: tiktoken>=0.7.0
+Requires-Dist: pypdf>=4.3.0
+Requires-Dist: beautifulsoup4>=4.12.0
+Requires-Dist: requests>=2.32.0
+Requires-Dist: pytest>=8.3.0
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: rank-bm25>=0.2.2
+Requires-Dist: networkx>=3.3
+Requires-Dist: numpy>=1.26.0
+Requires-Dist: fpdf2>=2.7.0
+Requires-Dist: Pillow>=10.4.0
+
+# Production RAG with LangChain & Vector Databases
+
+This is the complete implementation for the "Production RAG with LangChain & Vector Databases" course.
+
+## Project Structure
+- `part1_foundation`: Core RAG concepts, chunking, embeddings.
+- `part2_debugging`: Failure modes, LangSmith tracing.
+- `part3_optimization`: Hybrid search, reranking, multi-query.
+- `part4_scaling`: Supabase PGVector, caching, monitoring.
+- `part5_production`: Production FastAPI and Streamlit UI.
+- `part6_advanced`: Agentic RAG, GraphRAG, Multimodal RAG.
+
+## Setup
+1. Copy `.env.example` to `.env` and configure your keys.
+2. Run `uv run pytest tests/` to verify functionality.
+3. Start FastAPI server: `cd part5_production && uv run uvicorn api.main:app --reload`
+4. Start Streamlit UI: `cd part5_production && uv run streamlit run ui/streamlit_app.py`
