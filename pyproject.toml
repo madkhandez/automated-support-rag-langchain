@@ -42,8 +42,8 @@ requires = ["setuptools>=70.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["part*"]
+where = ["src"]
+include = ["production_rag*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

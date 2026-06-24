@@ -14,7 +14,7 @@ from fastapi import FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from part5_production.security import (
+from production_rag.security import (
     InputValidator,
     OutputFilter,
     RateLimiter,

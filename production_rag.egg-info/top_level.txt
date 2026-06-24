@@ -1,6 +1,0 @@
-part1_foundation
-part2_debugging
-part3_optimization
-part4_scaling
-part5_production
-part6_advanced

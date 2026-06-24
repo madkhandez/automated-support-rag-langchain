@@ -67,7 +67,7 @@ class VectorStoreFactory:
     # ── Embeddings (lazy) ────────────────────────────────────────────
     def _get_embeddings(self):
         """Retrieve embeddings from the LLMFactory singleton."""
-        from part5_production.core.llm import LLMFactory
+        from production_rag.core.llm import LLMFactory
         return LLMFactory().get_embeddings()
 
     # ── ChromaDB ─────────────────────────────────────────────────────
