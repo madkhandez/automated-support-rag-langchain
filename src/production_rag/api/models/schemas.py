@@ -7,7 +7,7 @@ serialised via these models.  Using Pydantic v2 for speed and clarity.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Any
 
 from pydantic import BaseModel, Field
 
@@ -39,12 +39,16 @@ class ChatResponse(BaseModel):
     """Payload returned by POST /api/v1/chat."""
 
     answer: str = Field(..., description="Generated answer text.")
-    sources: list[str] = Field(
+    sources: list[Any] = Field(
         default_factory=list,
-        description="Source document identifiers used to produce the answer.",
+        description="Source documents (list of dicts with filename and excerpt).",
     )
     latency_ms: int = Field(
         ..., ge=0, description="End-to-end latency in milliseconds."
+    )
+    processing_time: Optional[float] = Field(
+        default=None,
+        description="End-to-end processing time in seconds.",
     )
     token_count: Optional[int] = Field(
         default=None,
@@ -56,11 +60,11 @@ class IngestResponse(BaseModel):
     """Payload returned by POST /api/v1/ingest."""
 
     status: str = Field(..., description="'success' or 'error'.")
-    chunks_indexed: int = Field(
-        ..., ge=0, description="Number of chunks written to the vector store."
+    chunk_count: int = Field(
+        ..., ge=0, description="Number of chunks written to the vector store.",
     )
-    doc_id: str = Field(
-        ..., description="Unique identifier assigned to the ingested document."
+    filename: str = Field(
+        ..., description="Original filename of the ingested document.",
     )
 
 
@@ -68,11 +72,15 @@ class HealthResponse(BaseModel):
     """Payload returned by GET /api/v1/health."""
 
     status: str = Field(..., description="Overall system status.")
+    active_llm_provider: Optional[str] = Field(None, description="Current LLM provider in use.")
+    provider_statuses: list[dict] = Field(default_factory=list, description="Status of all providers.")
+    version: str = Field(..., description="API version string.")
+    uptime: float = Field(..., ge=0.0, description="Uptime in seconds.")
     vector_store: str = Field(
-        ..., description="'healthy' or 'unhealthy'."
+        ..., description="'connected' or 'disconnected'."
     )
     llm: str = Field(
-        ..., description="'healthy' or 'unhealthy'."
+        ..., description="'connected' or 'disconnected'."
     )
 
 
@@ -119,11 +127,11 @@ def main() -> None:
     print(f"  ChatResponse:   {resp.model_dump()}")
 
     # IngestResponse
-    ingest = IngestResponse(status="success", chunks_indexed=12, doc_id="d-abc")
+    ingest = IngestResponse(status="success", chunk_count=12, filename="doc.pdf")
     print(f"  IngestResponse: {ingest.model_dump()}")
 
     # HealthResponse
-    health = HealthResponse(status="ok", vector_store="healthy", llm="healthy")
+    health = HealthResponse(status="ok", version="1.0.0", uptime=42.5, vector_store="connected", llm="connected")
     print(f"  HealthResponse: {health.model_dump()}")
 
     # StatsResponse

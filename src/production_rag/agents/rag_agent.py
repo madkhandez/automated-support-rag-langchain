@@ -4,17 +4,21 @@ from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from .agent_state import AgentState
 from ..core.vector_store import VectorStoreFactory
-from ..core.llm import LLMFactory
+from ..core.llm_factory import LLMFactory
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.documents import Document
+import logging
+
+logger = logging.getLogger(__name__)
 
 class RagAgent:
     """LangGraph agent with self-correction loop."""
     
     def __init__(self):
         self.vector_store = VectorStoreFactory().get_vector_store()
-        self.llm = LLMFactory().get_llm(temperature=0)
+        self.llm, self.active_provider = LLMFactory.get_llm()
+        logger.info(f"RagAgent using LLM provider: {self.active_provider}")
         self.checkpointer = MemorySaver()
         self.app = self._build_graph()
         
@@ -172,10 +176,17 @@ class RagAgent:
         
         # Extract sources from documents
         sources = []
+        seen_filenames = set()
         if "documents" in result:
-            sources = [doc.metadata.get("source", "Unknown") for doc in result["documents"] if hasattr(doc, "metadata")]
+            for doc in result["documents"]:
+                if hasattr(doc, "metadata"):
+                    filename = doc.metadata.get("source", "Unknown")
+                    if filename not in seen_filenames:
+                        seen_filenames.add(filename)
+                        excerpt = doc.page_content[:120] + "..." if len(doc.page_content) > 120 else doc.page_content
+                        sources.append({"filename": filename, "excerpt": excerpt})
             
         return {
             "answer": result.get("answer", "No answer generated."),
-            "sources": list(set(sources)) # Deduplicate
+            "sources": sources
         }

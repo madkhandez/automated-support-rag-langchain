@@ -9,6 +9,9 @@ license = {text = "MIT"}
 dependencies = [
     "langchain>=1.0.0",
     "langchain-openai>=0.3.0",
+    "langchain-anthropic>=0.3.0",
+    "langchain-google-genai>=2.0.0",
+    "langchain-huggingface>=0.1.0",
     "langchain-chroma>=0.2.0",
     "langchain-community>=0.3.0",
     "langchain-core>=0.3.0",
@@ -16,6 +19,9 @@ dependencies = [
     "langsmith>=0.2.0",
     "chromadb>=0.5.0",
     "openai>=1.50.0",
+    "sentence-transformers>=3.0.0",
+    "langchain-ollama>=0.2.0",
+    "google-generativeai>=0.8.0",
     "fastapi>=0.115.0",
     "uvicorn>=0.30.0",
     "streamlit>=1.38.0",
@@ -50,3 +56,9 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    # langchain-community is sunset; suppress until migrated to standalone packages
+    "ignore:`langchain-community` is being sunset:DeprecationWarning",
+    # starlette/httpx2 transition — upstream dependency, not actionable here
+    "ignore:Using `httpx` with `starlette.testclient` is deprecated:starlette.exceptions.StarletteDeprecationWarning",
+]
