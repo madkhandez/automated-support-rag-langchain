@@ -31,8 +31,13 @@ The project has been structured for professional production deployment:
    cd src/production_rag
    uv run uvicorn api.main:app --reload
    ```
-5. Start the Streamlit UI:
-   ```bash
-   cd src/production_rag
-   uv run streamlit run ui/streamlit_app.py
-   ```
+5. Open the application in your browser:
+   Navigate to [http://localhost:8000](http://localhost:8000) to view the landing page and access the RAG tool.
+
+## AI Provider Configuration
+The application uses a cascading fallback chain for LLMs: Google Gemini → Local Ollama → Anthropic Claude → OpenAI.
+Configure these in your `.env` file:
+- `GOOGLE_API_KEY`, `GOOGLE_LLM_MODEL`
+- `OLLAMA_BASE_URL`, `LOCAL_LLM_MODEL`
+- `ANTHROPIC_API_KEY`, `ANTHROPIC_LLM_MODEL`
+- `OPENAI_API_KEY`, `OPENAI_LLM_MODEL`

@@ -1,5 +1,5 @@
 import pytest
-from part5_production.security import InputValidator, OutputFilter, RateLimiter
+from production_rag.security import InputValidator, OutputFilter, RateLimiter
 
 def test_prompt_injection_detection():
     """Test that known injection strings are detected."""

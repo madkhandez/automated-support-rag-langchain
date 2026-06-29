@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 from langchain_core.documents import Document
 
 # ── Load environment variables ───────────────────────────────────────
-env_path = Path(__file__).resolve().parents[2] / ".env"
+env_path = Path(__file__).resolve().parents[3] / ".env"
 load_dotenv(dotenv_path=env_path)
 
 
