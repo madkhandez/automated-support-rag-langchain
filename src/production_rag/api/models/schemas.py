@@ -23,9 +23,11 @@ class ChatRequest(BaseModel):
         max_length=2000,
         description="The user's question (max 2 000 chars).",
     )
-    session_id: Optional[str] = Field(
-        default=None,
-        description="Optional session ID for conversational memory.",
+    session_id: str = Field(
+        ...,
+        min_length=1,
+        description="Session ID for document isolation — ensures each session "
+                    "only retrieves its own uploaded documents.",
     )
     user_id: Optional[str] = Field(
         default=None,

@@ -156,14 +156,53 @@ class VectorStoreFactory:
         return ids
 
     def similarity_search(
-        self, query: str, k: int = 4
+        self, query: str, k: int = 4, filter_metadata: dict | None = None,
     ) -> list[Document]:
-        """Run a similarity search and return the top-k documents."""
+        """Run a similarity search and return the top-k documents.
+
+        Args:
+            query: The search query string.
+            k: Number of top results to return.
+            filter_metadata: Optional metadata filter dict, e.g.
+                ``{"session_id": "abc-123"}``.
+        """
         store = self.get_vector_store()
-        results = store.similarity_search(query, k=k)
-        print(f"🔍 similarity_search  k={k}  results={len(results)}  "
-              f"backend={self.backend_name}")
+        kwargs: dict = {"k": k}
+        if filter_metadata:
+            kwargs["filter"] = filter_metadata
+        results = store.similarity_search(query, **kwargs)
+        print(f"🔍 similarity_search  k={k}  filter={filter_metadata}  "
+              f"results={len(results)}  backend={self.backend_name}")
         return results
+
+    def delete_by_session(self, session_id: str) -> int:
+        """Delete all documents belonging to a specific session.
+
+        Args:
+            session_id: The session whose documents should be removed.
+
+        Returns:
+            Number of documents deleted (best-effort count).
+        """
+        store = self.get_vector_store()
+        try:
+            # ChromaDB supports delete with where filter
+            if hasattr(store, '_collection'):
+                # langchain-chroma exposes the underlying collection
+                collection = store._collection
+                # Get IDs matching the session
+                result = collection.get(where={"session_id": session_id})
+                ids = result.get("ids", [])
+                if ids:
+                    collection.delete(ids=ids)
+                print(f"🗑️  Deleted {len(ids)} chunk(s) for session={session_id}")
+                return len(ids)
+            else:
+                print("⚠️  delete_by_session not supported on this backend")
+                return 0
+        except Exception as exc:
+            print(f"⚠️  delete_by_session failed: {exc}")
+            return 0
 
     def test_connection(self) -> bool:
         """Verify the vector store is reachable."""
