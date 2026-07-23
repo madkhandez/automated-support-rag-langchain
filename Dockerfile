@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Pastikan path python mengenali folder src
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app/src
 
 # Eksekusi FastAPI di port 7860
-CMD ["uvicorn", "src.production_rag.api.main:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "production_rag.api.main:app", "--host", "0.0.0.0", "--port", "7860"]
