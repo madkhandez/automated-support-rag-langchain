@@ -1,16 +1,11 @@
----
-title: Automated Support RAG API
-emoji: 🤖
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-app_port: 7860
-pinned: false
----
+# RAG Automated Support with LangChain & Vector Databases
 
-# Production RAG with LangChain & Vector Databases
+Turn scattered company knowledge into instant, accurate AI answers with Retrieval-Augmented Generation (RAG).
 
-This is a complete, production-ready implementation of a Retrieval-Augmented Generation (RAG) system using LangChain, Vector Databases, and FastAPI.
+An enterprise-grade AI assistant capable of retrieving information from PDFs, Office documents, databases, APIs, websites, Git repositories, and other internal knowledge sources—providing grounded, context-aware answers with citations.
+
+🔴 **[Test the Live Demo Here](https://madkhan-rag.hf.space)** *(Hosted on Hugging Face)*
+
 
 ## Project Structure
 
@@ -21,9 +16,8 @@ The project has been structured for professional production deployment:
   - `core/`: Core RAG logic, LLM management, and vector store operations.
   - `agents/`: LangGraph agents and state management.
   - `security/`: Rate limiting, prompt injection prevention, and output filtering.
-  - `ui/`: Streamlit frontend for the chat interface.
+  - `ui/`: Frontend for the chat interface.
 - `tests/`: Comprehensive test suite for the pipeline and API.
-- `tutorials/`: Educational notebooks and scripts detailing fundamental to advanced RAG concepts (chunking, hybrid search, caching, etc.).
 
 ## Setup & Execution
 
