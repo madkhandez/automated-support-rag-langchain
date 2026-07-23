@@ -1,3 +1,13 @@
+---
+title: Automated Support RAG API
+emoji: 🤖
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Production RAG with LangChain & Vector Databases
 
 This is a complete, production-ready implementation of a Retrieval-Augmented Generation (RAG) system using LangChain, Vector Databases, and FastAPI.
