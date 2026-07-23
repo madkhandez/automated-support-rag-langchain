@@ -17,3 +17,8 @@ dist/\
 # IDE\
 .vscode/\
 .idea/}
+
+src/production_rag/chroma_db/
+chroma_db/
+*.sqlite3
+*.bin
