@@ -69,6 +69,10 @@ def create_app() -> FastAPI:
     async def serve_app():
         return FileResponse(os.path.join(static_dir, "app.html"))
 
+    @app.get("/pricing")
+    async def serve_pricing():
+        return FileResponse(os.path.join(static_dir, "pricing.html"))
+
     return app
 
 # Default app instance for uvicorn
