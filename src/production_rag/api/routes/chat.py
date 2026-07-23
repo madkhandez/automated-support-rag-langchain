@@ -1,7 +1,8 @@
 import time
-from fastapi import APIRouter, Request, HTTPException, UploadFile, File
+from fastapi import APIRouter, Request, HTTPException, UploadFile, File, Form
 from ..models.schemas import ChatRequest, ChatResponse, IngestResponse
 from ...security import SecurityManager
+from typing import Optional
 
 router = APIRouter()
 
@@ -28,7 +29,7 @@ async def chat_endpoint(request: ChatRequest, req: Request):
         raise HTTPException(status_code=500, detail="RAG pipeline not initialized")
 
     try:
-        result = pipeline.query(request.question)
+        result = pipeline.query(request.question, session_id=request.session_id)
 
         processing_time = time.time() - start_time
         latency = int(processing_time * 1000)
@@ -53,7 +54,11 @@ async def chat_endpoint(request: ChatRequest, req: Request):
         raise HTTPException(status_code=500, detail=f"Internal processing error: {str(e)}")
 
 @router.post("/ingest", response_model=IngestResponse)
-async def ingest_endpoint(file: UploadFile = File(...), req: Request = None):
+async def ingest_endpoint(
+    file: UploadFile = File(...),
+    session_id: Optional[str] = Form(None),
+    req: Request = None,
+):
     """Endpoint to upload and index documents."""
     # 1. Validate file via security manager
     security: SecurityManager = req.app.state.security
@@ -73,7 +78,7 @@ async def ingest_endpoint(file: UploadFile = File(...), req: Request = None):
 
     try:
         pipeline = req.app.state.pipeline
-        result = pipeline.ingest_documents(tmp_path, original_filename=file.filename)
+        result = pipeline.ingest_documents(tmp_path, original_filename=file.filename, session_id=session_id)
         return IngestResponse(
             status="success",
             chunk_count=result.get("chunks_indexed", 0),

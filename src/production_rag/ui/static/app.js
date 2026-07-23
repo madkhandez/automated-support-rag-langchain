@@ -137,6 +137,7 @@ async function ingestDocuments() {
   const file = state.files[0];
   const formData = new FormData();
   formData.append('file', file);
+  formData.append('session_id', state.sessionId);
   
   // Fake progress animation
   const fill = document.getElementById('progress-fill');

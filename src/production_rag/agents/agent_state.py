@@ -23,6 +23,7 @@ class AgentState(TypedDict):
         generation_count:  How many generate attempts have been made (for retry cap).
         is_grounded:       Whether the latest answer is grounded in context.
         needs_web_search:  Flag set by the grader when retrieval quality is poor.
+        session_id:        Session identifier for document isolation filtering.
     """
 
     question: str
@@ -31,6 +32,7 @@ class AgentState(TypedDict):
     generation_count: int
     is_grounded: bool
     needs_web_search: bool
+    session_id: str
 
 
 def create_initial_state(question: str) -> AgentState:

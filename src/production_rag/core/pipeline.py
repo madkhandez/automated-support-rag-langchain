@@ -23,9 +23,8 @@ class ProductionRAGPipeline:
         self.llm, self.active_provider = LLMFactory.get_llm()
         logger.info(f"RAG pipeline using LLM provider: {self.active_provider}")
         self.vector_store = self.vs_factory.get_vector_store()
-        self.retriever = self.vector_store.as_retriever(search_kwargs={"k": 4})
         
-        # Setup RAG chain
+        # Setup RAG prompt (retriever is created per-query with session filter)
         system_prompt = (
             "You are an assistant for question-answering tasks. "
             "Use the following pieces of retrieved context to answer the question. "
@@ -38,12 +37,31 @@ class ProductionRAGPipeline:
             ("system", system_prompt),
             ("human", "{input}"),
         ])
-        self.question_answer_chain = create_stuff_documents_chain(self.llm, self.prompt)
-        self.rag_chain = create_retrieval_chain(self.retriever, self.question_answer_chain)
 
-    def query(self, question: str) -> Dict[str, Any]:
-        """Process a question through the RAG pipeline."""
-        response = self.rag_chain.invoke({"input": question})
+    def _build_chain(self, session_id: str | None = None):
+        """Build a RAG chain with an optional session-scoped retriever.
+
+        Args:
+            session_id: If provided, the retriever only returns documents
+                        whose metadata ``session_id`` matches this value.
+        """
+        search_kwargs: dict = {"k": 4}
+        if session_id:
+            search_kwargs["filter"] = {"session_id": session_id}
+
+        retriever = self.vector_store.as_retriever(search_kwargs=search_kwargs)
+        question_answer_chain = create_stuff_documents_chain(self.llm, self.prompt)
+        return create_retrieval_chain(retriever, question_answer_chain)
+
+    def query(self, question: str, session_id: str | None = None) -> Dict[str, Any]:
+        """Process a question through the RAG pipeline.
+
+        Args:
+            question: The user's natural-language question.
+            session_id: Scope retrieval to this session's documents only.
+        """
+        rag_chain = self._build_chain(session_id=session_id)
+        response = rag_chain.invoke({"input": question})
         
         answer = response["answer"]
         source_docs = response.get("context", [])
@@ -66,8 +84,14 @@ class ProductionRAGPipeline:
             "token_count": token_count,
         }
 
-    def ingest_documents(self, file_path: str, original_filename: str = None) -> Dict[str, Any]:
-        """Ingest a file into the vector store. Returns chunk count."""
+    def ingest_documents(self, file_path: str, original_filename: str = None, session_id: str | None = None) -> Dict[str, Any]:
+        """Ingest a file into the vector store. Returns chunk count.
+
+        Args:
+            file_path: Path to the file to ingest.
+            original_filename: Display name for the source metadata.
+            session_id: Tag every chunk with this session for isolation.
+        """
         # Use original filename if provided, else extract from path
         filename = original_filename if original_filename else os.path.basename(file_path)
         ext = os.path.splitext(file_path)[1].lower()
@@ -80,9 +104,11 @@ class ProductionRAGPipeline:
             
         docs = loader.load()
         
-        # Update metadata to original filename
+        # Update metadata to original filename + session scoping
         for doc in docs:
             doc.metadata["source"] = filename
+            if session_id:
+                doc.metadata["session_id"] = session_id
             
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,

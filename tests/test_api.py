@@ -60,7 +60,7 @@ def test_chat_endpoint_valid(mock_rag_pipeline):
     assert "mock_doc.txt" in data["sources"]
     assert "processing_time" in data
 
-    mock_rag_pipeline.query.assert_called_once_with("What is the policy on annual leave?")
+    mock_rag_pipeline.query.assert_called_once_with("What is the policy on annual leave?", session_id="test_session_1")
 
 def test_chat_prompt_injection():
     """Test the /chat endpoint blocks prompt injection."""
@@ -104,8 +104,9 @@ def test_file_ingest_endpoint(mock_rag_pipeline):
     # Create a dummy text file
     file_content = b"This is a test document about RAG systems."
     files = {"file": ("test_doc.txt", file_content, "text/plain")}
+    data = {"session_id": "test_ingest_session"}
 
-    response = client.post("/api/v1/ingest", files=files)
+    response = client.post("/api/v1/ingest", files=files, data=data)
 
     assert response.status_code == 200
     data = response.json()

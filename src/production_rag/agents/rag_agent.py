@@ -64,14 +64,18 @@ class RagAgent:
         return workflow.compile(checkpointer=self.checkpointer)
         
     def _retrieve_node(self, state: AgentState) -> Dict[str, Any]:
-        """Retrieve documents."""
+        """Retrieve documents scoped to the current session."""
         question = state["question"]
-        print(f"---RETRIEVE: {question}---")
+        session_id = state.get("session_id")
+        print(f"---RETRIEVE: {question}  session={session_id}---")
         
         # Default fallback if vector store isn't fully initialized in tests
         docs = []
         if hasattr(self.vector_store, 'similarity_search'):
-            docs = self.vector_store.similarity_search(question, k=4)
+            kwargs: dict = {"k": 4}
+            if session_id:
+                kwargs["filter"] = {"session_id": session_id}
+            docs = self.vector_store.similarity_search(question, **kwargs)
         
         return {"documents": docs, "question": question}
         
@@ -158,17 +162,23 @@ class RagAgent:
         return "retry"
         
     def run_agent(self, question: str, session_id: str = "default") -> Dict[str, Any]:
-        """Run the agent and return result."""
+        """Run the agent and return result.
+
+        Args:
+            question: The user's natural-language question.
+            session_id: Scope document retrieval to this session.
+        """
         config = {"configurable": {"thread_id": session_id}}
         
-        # Initialize state
+        # Initialize state — session_id flows through the graph for filtered retrieval
         initial_state = {
             "question": question,
             "documents": [],
             "answer": "",
             "generation_count": 0,
             "is_grounded": False,
-            "needs_web_search": False
+            "needs_web_search": False,
+            "session_id": session_id,
         }
         
         # Run graph
